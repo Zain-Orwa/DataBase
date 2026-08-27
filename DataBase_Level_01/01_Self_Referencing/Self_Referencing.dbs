@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="Self_Referencing" database="LogicalDesign" id="9d9e0245-4ae4-47ac-9e2b-4735d2c121a7" >
+	<diagram_group name="Default" id="cd99a461-fb75-4f25-a843-7f117bf9a636" >
+		<diagram name="Default Diagram" id="0ae843dc-8795-4e83-a2de-649507c69b6b" show_relation="columns" >
+			<callout x="57" y="57" pointer="Round" >
+				<comment><![CDATA[- Create new entities by right-clicking the diagram. 
+- Double-click entity headers to edit.
+- Get a better understanding of the schema by creating multiple diagrams.
+- Convert the logical design to physical design and deploy it into the database.]]></comment>
+			</callout>
+		</diagram>
+	</diagram_group>
+</project>
