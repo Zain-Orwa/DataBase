@@ -46,17 +46,17 @@ flowchart LR
 ## 2. Relational Schema
 
 ```text
-             1 : M
-┌──────────────────┐        ┌────────────────┐
-│     Employee      │        │   Department   │
-├────┬───────────────┤        ├────┬───────────┤
-│ PK │ EmpID         │        │ PK │ DeptID    │
-│    │ FirstName     │        │    │ Name      │
-│    │ LastName      │        └────┴───────────┘
-│    │ BirthDate     │                 ▲
-│ FK │ DeptID        │─────────────────┘
-│    │ StartDate     │
-└────┴───────────────┘
+                    1 : M
++--------------------+     +----------------+
+|      Employee      |     |   Department   |
++----+---------------+     +----+-----------+
+| PK | EmpID         |     | PK | DeptID    |
+|    | FirstName     |     |    | Name      |
+|    | LastName      |     +----+-----------+
+|    | BirthDate     |               ^
+| FK | DeptID        |---------------+
+|    | StartDate     |
++----+---------------+
 ```
 
 **Rule applied:**
@@ -89,13 +89,13 @@ flowchart LR
 **How to read them together:**
 
 ```text
-Employee.DeptID  ──────►  Department.DeptID
+Employee.DeptID  ------>  Department.DeptID
      (FK)                      (PK)
 
-Mohammed  → DeptID 1 → IT
-Ali       → DeptID 1 → IT
-Maha      → DeptID 2 → Finance
-Fidaa     → DeptID 4 → Sales
+Mohammed  -> DeptID 1 -> IT
+Ali       -> DeptID 1 -> IT
+Maha      -> DeptID 2 -> Finance
+Fidaa     -> DeptID 4 -> Sales
 ```
 
 One Department (e.g. **IT**, DeptID = 1) can have **many** employees (Mohammed **and** Ali).
@@ -134,24 +134,24 @@ and store `1 = IT` **exactly once**, inside the Department table.
 ## 6. ✅ Correct Way
 
 ```text
-        ONE SIDE                              MANY SIDE
+      ONE SIDE                            MANY SIDE
 
-     ┌────────────────┐                ┌──────────────────────┐
-     │    Department   │                │       Employee        │
-     ├────┬─────────────┤                ├────┬───────────────────┤
-     │ PK │ DeptID      │───────────────►│ FK │ DeptID           │
-     │    │ Name        │                │ PK │ EmpID            │
-     └────┴─────────────┘                │    │ FirstName        │
-                                         │    │ LastName         │
-                                         │    │ BirthDate        │
-                                         │    │ StartDate        │
-                                         └────┴───────────────────┘
++----------------+                +---------------------+
+|   Department   |                |       Employee      |
++----+-----------+                +----+----------------+
+| PK | DeptID    |--------------->| FK | DeptID         |
+|    | Name      |                | PK | EmpID          |
++----+-----------+                |    | FirstName      |
+                                  |    | LastName       |
+                                  |    | BirthDate      |
+                                  |    | StartDate      |
+                                  +----+----------------+
 ```
 
 ```text
 Department.DeptID (PK)
-          │
-          ▼
+          |
+          v
 Employee.DeptID (FK)
 ```
 
@@ -163,26 +163,26 @@ The Primary Key from the **ONE** side (`Department.DeptID`) travels down and bec
 
 What if, instead, we stuff all the department details directly into every Employee row?
 
-| EmpID | FirstName | LastName    | DepartmentName | DepartmentLocation |
+| EmpID | FirstName | LastName    | DepartmentName  | DepartmentLocation  |
 |:-----:|-----------|-------------|:---------------:|:-------------------:|
-| 1     | Mohammed  | Abu-Hadhoud | 🔴 **IT**        | 🔴 **Vienna**        |
-| 2     | Ali       | Amjad       | 🔴 **IT**        | 🔴 **Vienna**        |
-| 3     | Sara      | Ahmed       | 🔴 **IT**        | 🔴 **Vienna**        |
-| 4     | Adam      | Ali         | 🔴 **IT**        | 🔴 **Vienna**        |
+| 1     | Mohammed  | Abu-Hadhoud | **IT** 🔴       | **Vienna** 🔴        |
+| 2     | Ali       | Amjad       | **IT** 🔴       | **Vienna** 🔴        |
+| 3     | Sara      | Ahmed       | **IT** 🔴       | **Vienna** 🔴        |
+| 4     | Adam      | Ali         | **IT** 🔴       | **Vienna** 🔴        |
 
 🔴 = the **redundant** cells — the exact same two values, copy-pasted into every single row that belongs to the IT department.
 
 ```text
-                          REDUNDANCY (repeated data)
+                    REDUNDANCY (repeated data)
 
-Mohammed ────────► 🔴 IT ────────► 🔴 Vienna
-Ali      ────────► 🔴 IT ────────► 🔴 Vienna
-Sara     ────────► 🔴 IT ────────► 🔴 Vienna
-Adam     ────────► 🔴 IT ────────► 🔴 Vienna
-                     ▲                ▲
-                     │                │
-              same value        same value
-              repeated 4x       repeated 4x
+Mohammed --------> [ IT ] --------> [ Vienna ]
+Ali      --------> [ IT ] --------> [ Vienna ]
+Sara     --------> [ IT ] --------> [ Vienna ]
+Adam     --------> [ IT ] --------> [ Vienna ]
+                      ^                 ^
+                      |                 |
+               same value         same value
+               repeated 4x        repeated 4x
 ```
 
 Every employee in IT drags around **two full copies** of department data that never changes per-employee. That's the redundancy: one fact ("IT is located in Vienna") is stored **four times** instead of once.
@@ -192,23 +192,23 @@ Every employee in IT drags around **two full copies** of department data that ne
 Say the IT department relocates:
 
 ```text
-Vienna → Krems
+Vienna -> Krems
 ```
 
 With the wrong (flattened) design, someone has to remember to update **every single employee row** that mentions IT. If even one row gets missed:
 
-| Employee | Department | Location    |
-|----------|------------|-------------|
-| Mohammed | IT         | Krems ✅    |
-| Ali      | IT         | Krems ✅    |
-| Sara     | IT         | Vienna ❌   |
-| Adam     | IT         | Krems ✅    |
+| Employee | Department | Location  |
+|----------|------------|-----------|
+| Mohammed | IT         | Krems ✅  |
+| Ali      | IT         | Krems ✅  |
+| Sara     | IT         | Vienna ❌ |
+| Adam     | IT         | Krems ✅  |
 
 ```text
 IT = Krems
 IT = Vienna
 
-❌ Which one is correct? The database now contradicts itself.
+Which one is correct? The database now contradicts itself.
 ```
 
 This is called an **update anomaly** — a direct symptom of redundancy.
@@ -219,12 +219,12 @@ We change **one row, in one table**:
 
 **Departments**
 
-| DeptID | Name | Location   |
-|:------:|------|------------|
-| 1      | IT   | **Krems**  |
-| 2      | Finance | Vienna  |
-| 3      | Marketing | Vienna |
-| 4      | Sales | Vienna    |
+| DeptID | Name      | Location   |
+|:------:|---------- |------------|
+| 1      | IT        | **Krems**  |
+| 2      | Finance   | Vienna     |
+| 3      | Marketing | Vienna     |
+| 4      | Sales     | Vienna     |
 
 **Employees** (untouched — they only ever stored the ID)
 
@@ -237,8 +237,8 @@ We change **one row, in one table**:
 
 ```text
 DeptID 1
-   │
-   ▼
+   |
+   v
 IT
 Krems
 ```
@@ -250,18 +250,18 @@ All four employees automatically point to the same, single, now-correct row. One
 ## 8. Final Diagram
 
 ```text
-                ONE                                MANY
+          ONE                           MANY
 
-         ┌────────────────┐               ┌────────────────────┐
-         │   Department   │               │      Employee       │
-         ├────────────────┤               ├────────────────────┤
-         │ PK DeptID      │──────────────►│ FK DeptID          │
-         │ Name           │               │ PK EmpID           │
-         └────────────────┘               │ FirstName          │
-                                          │ LastName           │
-                                          │ BirthDate          │
-                                          │ StartDate          │
-                                          └────────────────────┘
+  +----------------+            +--------------------+
+  |   Department   |            |      Employee      |
+  +----------------+            +--------------------+
+  | PK DeptID      |----------->| FK DeptID          |
+  | Name           |            | PK EmpID           |
+  +----------------+            | FirstName          |
+                                | LastName           |
+                                | BirthDate          |
+                                | StartDate          |
+                                +--------------------+
 ```
 
 ## 9. Rule to Remember
